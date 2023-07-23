@@ -1,4 +1,4 @@
-![Astro Thumbor Image Logo](https://user-images.githubusercontent.com/)
+![Astro Thumbor Image Logo](https://raw.githubusercontent.com/KreischerPanoptic/astro-thumbor-image/6684fb1d849069c8567dda1cc56937e36bd2c5f2/docs/images/astro-thumbor-image-logo.png)
 
 # 🚀 Astro Thumbor Image
 
