@@ -1,0 +1,74 @@
+---
+import {buildUrl, ImageProps, srcSetToString} from "../types";
+export interface Props extends ImageProps {}
+
+Astro.props.surpressWarnings = true;
+
+let relative = false;
+
+//GET ABSOLUTE URL
+//new URL("/assets/images/logo/logo.png", document.baseURI).href
+function validateProps(props: ImageProps) {
+    if(!props.alt) {
+        throw new Error("You must provide alt prop to <ThumborImage />");
+    }
+    if(!props.src) {
+        throw new Error("You must provide src prop to <ThumborImage />");
+    }
+    relative = !(props.src.indexOf('http://') === 0 || props.src.indexOf('https://') === 0);
+
+
+
+
+
+
+
+
+
+
+
+    /*if (props.openGraph) {
+        if (
+            !props.openGraph.basic ||
+            props.openGraph.basic.title == null ||
+            props.openGraph.basic.type == null ||
+            props.openGraph.basic.image == null
+        ) {
+            throw new Error(
+                "If you pass the openGraph prop, you have to at least define the title, type, and image basic properties!"
+            );
+        }
+    }
+
+    if (props.title && props.openGraph?.basic.title) {
+        if (props.title == props.openGraph.basic.title && !props.surpressWarnings) {
+            console.warn(
+                "WARNING(astro-seo): You passed the same value to `title` and `openGraph.optional.title`. This is most likely not what you want. See docs for more."
+            );
+        }
+    }
+
+    if (
+        props.openGraph?.basic?.image &&
+        !props.openGraph?.image?.alt &&
+        !props.surpressWarnings
+    ) {
+        console.warn(
+            "WARNING(astro-seo): You defined `openGraph.basic.image`, but didn't define `openGraph.image.alt`. This is stongly discouraged.'"
+        );
+    }*/
+}
+
+validateProps(Astro.props);
+---
+
+<img
+        src={Astro.props.thumbor ? buildUrl(Astro.props.src, Astro.props.thumbor) : Astro.props.src}
+        alt={Astro.props.alt ? Astro.props.alt : ''}
+        width={Astro.props.width ? Astro.props.width : ''}
+        height={Astro.props.height ? Astro.props.height : ''}
+        loading={Astro.props.loading ? Astro.props.loading : 'lazy'}
+        decoding={Astro.props.decoding ? Astro.props.decoding : 'async'}
+        srcset={Astro.props.srcset ? srcSetToString(Astro.props.srcset) : ''}
+        class={Astro.props.class ? Astro.props.class : ''}
+/>

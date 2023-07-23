@@ -1,0 +1,27 @@
+---
+//TODO: think how to convert it to picture element if needed
+
+import {PictureProps} from "../types/pictureProps";
+import {buildUrl, srcSetToString} from "../types";
+import * as console from "console";
+export interface Props extends PictureProps {}
+
+Astro.props.surpressWarnings = true;
+---
+<picture class={Astro.props.class ? Astro.props.class : ''}>
+    {
+        Astro.props.sources.map((source) => (
+            <source srcSet={srcSetToString(source.srcset)} media={source.media ? source.media : ''} type={source.type ? source.type : ''}/>
+        ))
+    }
+    <img
+            src={Astro.props.image.thumbor ? buildUrl(Astro.props.image.src, Astro.props.image.thumbor) : Astro.props.image.src}
+            alt={Astro.props.image.alt ? Astro.props.image.alt : ''}
+            width={Astro.props.image.width ? Astro.props.image.width : ''}
+            height={Astro.props.image.height ? Astro.props.image.height : ''}
+            loading={Astro.props.image.loading ? Astro.props.image.loading : 'lazy'}
+            decoding={Astro.props.image.decoding ? Astro.props.image.decoding : 'async'}
+            srcset={Astro.props.image.srcset ? srcSetToString(Astro.props.image.srcset) : ''}
+            class={Astro.props.image.class ? Astro.props.image.class : ''}
+    />
+</picture>

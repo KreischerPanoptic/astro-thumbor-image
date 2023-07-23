@@ -1,0 +1,51 @@
+{
+  "name": "astro-thumbor-image",
+  "version": "0.1.1",
+  "description": "Makes it easy to add Thumbor optimized images to your Astro app.",
+  "homepage": "https://github.com/KreischerPanoptic/astro-thumbor-image#readme",
+  "bugs": {
+    "url": "https://github.com/KreischerPanoptic/astro-thumbor-image/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/KreischerPanoptic/astro-thumbor-image"
+  },
+  "files": [
+    "index.ts",
+    "src/index.ts",
+    "src/components",
+    "src/types"
+  ],
+  "exports": "./index.ts",
+  "keywords": [
+    "astro-component",
+    "astro",
+    "astrojs",
+    "image",
+    "thumbor",
+    "seo",
+    "image-optimization",
+    "optimization"
+  ],
+  "author": "Dennis Soroka",
+  "license": "MIT",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro check && tsc --noEmit && astro build",
+    "start": "astro preview",
+    "format": "prettier -w ./src",
+    "check:format": "prettier -c ./src",
+    "release": "standard-version",
+    "check": "astro check"
+  },
+  "devDependencies": {
+    "astro": "^2.1.5",
+    "prettier": "^2.8.6",
+    "prettier-plugin-astro": "^0.8.0",
+    "standard-version": "^9.5.0",
+    "typescript": "^5.0.2"
+  },
+  "dependencies": {
+    "crypto-js": "^4.1.1"
+  }
+}
