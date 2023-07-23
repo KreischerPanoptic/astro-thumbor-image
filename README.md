@@ -4,8 +4,6 @@
 
 This [Astro](https://astro.build/) component makes it easy to add images which uses [Thumbor](https://www.thumbor.org) as engine for optimization.
 
-The ultimate goal is to make this the one-stop shop for most of your SEO needs when developing Astro sites.
-
 Pull requests and/or feature requests are very welcome!
 
 ## Installation
