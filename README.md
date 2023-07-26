@@ -95,6 +95,10 @@ import { ThumborImage } from "astro-thumbor-image";
 </html>
 ```
 
+## WARNING
+This components is still in development. ```<ThumborOptimizedImage/>``` and ```<ThumborFallbackImage/>``` are proven to not work in
+```ReactJS``` component with child nodes scenario, due to scripts not being loaded. This is a known issue and will be fixed in the future (I will probably just create react-thumbor-image or something like that).
+
 ## Available Components
 Component | Props Type | Description
 ------------ |---------| -------------
@@ -281,11 +285,11 @@ buildBackgrounImageCssString | imageSrc: string, thumborProps: ThumborProps | st
 ## Goals
 
 Our first goal for this project is to add a simple to use and fully-compatible with Thumbor, image
-component, which will handle all of the image processing and optimization for you in easy to use way.
+component, which will handle all the image processing and optimization for you in easy to use way.
 With astro-thumbor-image you don't need to construct Thumbor URLs by hand, you just pass the image component.
 You don't need to sign the URLs, the component will do it for you. By using more complex components, such as
-```<ThumborFallbackImage>``` and ```<ThumborOptimizedImage>``` you can even have the component automatically
-will render suitable version of image for the user's device and connection speed and availability of source image.
+```<ThumborFallbackImage>``` and ```<ThumborOptimizedImage>``` you can even have the component which will automatically
+render a suitable version of image for the user's device and connection speed and availability of source image.
 
 ## What does this component do, exactly?
 
