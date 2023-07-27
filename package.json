@@ -1,6 +1,6 @@
 {
   "name": "astro-thumbor-image",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Makes it easy to add Thumbor optimized images to your Astro app.",
   "homepage": "https://github.com/KreischerPanoptic/astro-thumbor-image#readme",
   "bugs": {
