@@ -50,7 +50,6 @@ type FilterPreprocessorResult = {
     extractionProps?: ThumborCropProps
 };
 
-//BLUR NOT WORKING ??
 function buildFilterString(filter: AbstractThumborFilterProp): FilterPreprocessorResult {
     let filterString = '';
     let extractionProps: ThumborCropProps | null = null;

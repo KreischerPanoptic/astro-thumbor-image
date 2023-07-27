@@ -111,9 +111,9 @@ import { ThumborImage } from "astro-thumbor-image";
 
 ## WARNING
 This components is still in development. ```<ThumborOptimizedImage/>``` and ```<ThumborFallbackImage/>``` are proven to not work in
-```ReactJS``` component with child nodes scenario, due to scripts not being loaded. This is a known issue and will be fixed in the future (I will probably just create react-thumbor-image or something like that).
+```ReactJS``` component with child nodes scenario, due to scripts not being loaded. For that specific scenario - use [react-thumbor-image](https://www.npmjs.com/package/react-thumbor-image).
 
-## What's new in version 2.0.0?
+## What's new in version 1.0.0?
 More strict filter system. More reliable and easy to use with typescript type-checking.
 Added missing filters, such as extract_focal, round_corner, sharpen and...watermark!
 
