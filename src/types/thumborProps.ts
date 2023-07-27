@@ -448,17 +448,17 @@ export function buildUrl(imageSrc: string, thumborProps: ThumborProps): URL {
             ...thumborProps.filters.filter(({name}) => name !== 'extract_focal'),
             ...thumborProps.filters.filter(({name}) => name === 'extract_focal')
         ];
-        console.log('sortedFilters: ', sortedFilters)
+        //console.log('sortedFilters: ', sortedFilters)
         let result = buildFiltersString(sortedFilters);
-        console.log('result: ', result)
+        //console.log('result: ', result)
         mainUrlPart += result.filterString;;
-        console.log('mainUrlPart after filters: ', mainUrlPart)
+        //console.log('mainUrlPart after filters: ', mainUrlPart)
         if(result.extractionProps) {
             let cropPart = `${url.replace(/(^\w+:|^)\/\//, '')}`;
             let cropMainPart = `/${result.extractionProps.topLeft.x}x${result.extractionProps.topLeft.y}:${result.extractionProps.bottomRight.x}x${result.extractionProps.bottomRight.y}`;
             cropMainPart += '/' + encodeURL(srcToUrl(imageSrc));
-            console.log('cropMainPart: ', cropMainPart)
-            console.log('cropPart: ', cropPart)
+            // console.log('cropMainPart: ', cropMainPart)
+            // console.log('cropPart: ', cropPart)
             if(thumborProps.key && thumborProps.key.length > 0) {
                 //console.log('to sign: ', mainUrlPart.substring(1, mainUrlPart.length));
                 let key = HmacSHA1(cropMainPart.substring(1, cropMainPart.length), thumborProps.key);
@@ -472,12 +472,12 @@ export function buildUrl(imageSrc: string, thumborProps: ThumborProps): URL {
                 cropPart+=`/unsafe${cropMainPart}`;
             }
             mainUrlPart += `/`+encodeURIComponent(cropPart);
-            console.log('mainUrlPart after extraction focal crop: ', mainUrlPart)
+            //console.log('mainUrlPart after extraction focal crop: ', mainUrlPart)
         }
         else {
             mainUrlPart += `/${encodeURL(srcToUrl(imageSrc))}`;
         }
-        console.log('mainUrlPart after adding source: ', mainUrlPart)
+        //console.log('mainUrlPart after adding source: ', mainUrlPart)
     }
     else {
         mainUrlPart += `/${encodeURL(srcToUrl(imageSrc))}`;
@@ -495,6 +495,6 @@ export function buildUrl(imageSrc: string, thumborProps: ThumborProps): URL {
     else {
         url+=`/unsafe${mainUrlPart}`;
     }
-    console.log('url: ', url);
+    //console.log('url: ', url);
     return new URL(url);
 }

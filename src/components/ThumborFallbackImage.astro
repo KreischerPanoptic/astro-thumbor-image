@@ -1,7 +1,6 @@
 ---
 import {buildUrl, srcSetToString} from "../types";
 import FallbackImageProps from "../types/fallbackImageProps";
-import * as console from "console";
 export interface Props extends FallbackImageProps {}
 
 Astro.props.surpressWarnings = true;
@@ -18,47 +17,6 @@ function validateProps(props: FallbackImageProps) {
         throw new Error("You must provide src prop to <ThumborImage />");
     }
     relative = !(props.src.indexOf('http://') === 0 || props.src.indexOf('https://') === 0);
-
-
-
-
-
-
-
-
-
-
-
-    /*if (props.openGraph) {
-        if (
-            !props.openGraph.basic ||
-            props.openGraph.basic.title == null ||
-            props.openGraph.basic.type == null ||
-            props.openGraph.basic.image == null
-        ) {
-            throw new Error(
-                "If you pass the openGraph prop, you have to at least define the title, type, and image basic properties!"
-            );
-        }
-    }
-
-    if (props.title && props.openGraph?.basic.title) {
-        if (props.title == props.openGraph.basic.title && !props.surpressWarnings) {
-            console.warn(
-                "WARNING(astro-seo): You passed the same value to `title` and `openGraph.optional.title`. This is most likely not what you want. See docs for more."
-            );
-        }
-    }
-
-    if (
-        props.openGraph?.basic?.image &&
-        !props.openGraph?.image?.alt &&
-        !props.surpressWarnings
-    ) {
-        console.warn(
-            "WARNING(astro-seo): You defined `openGraph.basic.image`, but didn't define `openGraph.image.alt`. This is stongly discouraged.'"
-        );
-    }*/
 }
 
 validateProps(Astro.props);
@@ -79,7 +37,7 @@ const fallbackid = Astro.props.id ? Astro.props.id : '';
 <script type="text/javascript" define:vars={{ fallbackimage, fallbackid }} is:inline>
     let fallbackimageLocal = fallbackimage;
     const images = document.querySelectorAll(`img#${fallbackid}`);
-    console.log(images);
+    //console.log(images);
     // Handle clicks on each button.
     images.forEach((image) => {
         image.addEventListener('error', () => {
