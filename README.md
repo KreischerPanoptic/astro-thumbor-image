@@ -38,57 +38,71 @@ import { ThumborImage } from "astro-thumbor-image";
   </head>
   <body>
     <div>
-        <p>
-            This is a test of the Thumbor Image component:
-        </p>
-        <ThumborImage
-            thumbor={{
-              key: 'example-key',
-              url: new URL('http://localhost:8888'),
-              width: 500,
-              height: 500,
-              smart: true,
-              filters: [
-                {
-                  name: 'quality',
-                  args: [{
-                    value: 100
-                  }]
+    <p>
+        This is a test of the Thumbor Image component. Local image:
+    </p>
+    <ThumborImage
+        thumbor={{
+          url: new URL('http://thumbor.thumborize.globo.com'),
+          width: 500,
+          height: 500,
+          smart: true,
+          filters: [
+            {
+              name: 'quality',
+              amount: 100
+            },
+            {
+              name: 'strip_exif'
+            },
+            {
+              name: "round_corner",
+              a: 25,
+              red: 255,
+              green: 255,
+              blue: 255,
+              transparent: true
+            },
+            {
+              name: 'strip_icc'
+            },
+            {
+              name: 'format',
+              format: 'webp'
+            },
+            {
+              name:'background_color',
+              color: '#2bb9a4'
+            },
+            {
+              name: "sharpen",
+              amount: 2,
+              radius: 1.0,
+              luminance: true
+            },
+            {
+              name:'extract_focal',
+              pre: {
+                topLeft: {
+                  x: 100,
+                  y: 150
                 },
-                {
-                  name: 'strip_exif'
-                },
-                {
-                  name: 'strip_icc'
-                },
-                {
-                  name: 'format',
-                  args: [{
-                    value: 'png'
-                  }]
-                },
-                {
-                  name:'background_color',
-                  args: [{
-                    value: '#2bb9a4'
-                  }]
-                },
-                {
-                  name:'convolution',
-                  args: [{
-                    value: [[-1, -1, -1], [-1, 8, -1], [-1, -1, -1]]
-                  },
-                  {
-                    value: 3
-                  },
-                  {
-                    value: false
-                  }]
+                bottomRight: {
+                  x: 300,
+                  y: 200
                 }
-              ]
-            }}
-            src="https://raw.githubusercontent.com/thumbor/thumbor/master/docs/images/tom_before_brightness.jpg"
-            alt="This is a test of the Thumbor Image component."
+              }
+            },
+            /*{
+              name:'convolution',
+              matrix: [[-1, -1, -1], [-1, 8, -1], [-1, -1, -1]],
+              columns: 3,
+              normalize: false
+            }*/
+          ]
+        }}
+        src="https://raw.githubusercontent.com/thumbor/thumbor/master/docs/images/tom_before_brightness.jpg"
+        alt="This is a test of the Thumbor Image component. Local logo image"
         />
       </div>
   </body>
@@ -98,6 +112,10 @@ import { ThumborImage } from "astro-thumbor-image";
 ## WARNING
 This components is still in development. ```<ThumborOptimizedImage/>``` and ```<ThumborFallbackImage/>``` are proven to not work in
 ```ReactJS``` component with child nodes scenario, due to scripts not being loaded. This is a known issue and will be fixed in the future (I will probably just create react-thumbor-image or something like that).
+
+## What's new in version 2.0.0?
+More strict filter system. More reliable and easy to use with typescript type-checking.
+Added missing filters, such as extract_focal, round_corner, sharpen and...watermark!
 
 ## Available Components
 Component | Props Type | Description
@@ -118,7 +136,7 @@ Filter | Supported | Description
 ```convolution``` | ✅ | This filter runs a convolution matrix (or kernel) on the image. See [Kernel (image processing)](http://en.wikipedia.org/wiki/Kernel_(image_processing)) for details on the process. Edge pixels are always extended outside the image area. [Learn more.](https://thumbor.readthedocs.io/en/latest/convolution.html)
 ```cover``` | ✅ | This filter is used in GIFs to extract their first frame as the image to be used as cover. [Learn more.](https://thumbor.readthedocs.io/en/latest/cover.html)
 ```equalize``` | ✅ | This filter equalizes the color distribution in the image. [Learn more.](https://thumbor.readthedocs.io/en/latest/equalize.html)
-```extract_focal``` | ❌ | When cropping, thumbor uses focal points in the image to direct the area of the image that matters most. There are several ways of finding focal points. [Learn more.](https://thumbor.readthedocs.io/en/latest/extract_focal_points.html)
+```extract_focal``` | ✅ | When cropping, thumbor uses focal points in the image to direct the area of the image that matters most. There are several ways of finding focal points. [Learn more.](https://thumbor.readthedocs.io/en/latest/extract_focal_points.html)
 ```fill``` | ✅ | This filter returns an image sized exactly as requested independently of its ratio. It will fill the missing area with the specified color. It is usually combined with the “fit-in” or “adaptive-fit-in” options. [Learn more.](https://thumbor.readthedocs.io/en/latest/filling.html)
 ```focal``` | ✅ | This filter adds a focal point, which is used in later transforms. [Learn more.](https://thumbor.readthedocs.io/en/latest/focal.html)
 ```format``` | ✅ | This filter specifies the output format of the image. The output must be one of: “webp”, “jpeg”, “gif”, “png”, or “avif”. [Learn more.](https://thumbor.readthedocs.io/en/latest/format.html)
@@ -131,14 +149,14 @@ Filter | Supported | Description
 ```Red eye``` | ❌ | Not documented yet. (Can't implement in URL builder something that don't have any documentation) [Learn more.](https://thumbor.readthedocs.io/en/latest/red_eye.html)
 ```rgb``` | ✅ | This filter changes the amount of color in each of the three channels. [Learn more.](https://thumbor.readthedocs.io/en/latest/rgb.html)
 ```rotate``` | ✅ | This filter rotates the given image according to the angle value passed. [Learn more.](https://thumbor.readthedocs.io/en/latest/rotate.html)
-```round_corner``` | ❌ | This filter adds rounded corners to the image using the specified color as background. [Learn more.](https://thumbor.readthedocs.io/en/latest/round_corners.html)
+```round_corner``` | ✅ | This filter adds rounded corners to the image using the specified color as background. [Learn more.](https://thumbor.readthedocs.io/en/latest/round_corners.html)
 ```saturation``` | ✅ | This filter increases or decreases the image saturation. [Learn more.](https://thumbor.readthedocs.io/en/latest/saturation.html)
-```sharpen``` | ❌ | This filter enhances apparent sharpness of the image. It’s heavily based on Marco Rossini’s excellent Wavelet sharpen GIMP plugin. [Learn more.](https://thumbor.readthedocs.io/en/latest/sharpen.html)
+```sharpen``` | ✅ | This filter enhances apparent sharpness of the image. It’s heavily based on Marco Rossini’s excellent Wavelet sharpen GIMP plugin. [Learn more.](https://thumbor.readthedocs.io/en/latest/sharpen.html)
 ```stretch``` | ✅ | This filter stretches the image until it fits the required width and height, instead of cropping the image. [Learn more.](https://thumbor.readthedocs.io/en/latest/stretch.html)
 ```strip_exif``` | ✅ | This filter removes any Exif information in the resulting image. [Learn more.](https://thumbor.readthedocs.io/en/latest/strip_exif.html)
 ```strip_icc``` | ✅ | This filter removes any ICC information in the resulting image. Even though the image might be smaller, removing ICC information may result in loss of quality. [Learn more.](https://thumbor.readthedocs.io/en/latest/strip_icc.html)
 ```upscale``` | ✅ | This filter tells thumbor to upscale your images. This only makes sense with “fit-in” or “adaptive-fit-in”. [Learn more.](https://thumbor.readthedocs.io/en/latest/upscale.html)
-```watermark``` | ❌ | This filter adds a watermark to the image. It can be positioned inside the image with the alpha channel specified and optionally resized based on the image size by specifying the ratio (see [Resizing](https://thumbor.readthedocs.io/en/latest/watermark.html#resizing)). [Learn more.](https://thumbor.readthedocs.io/en/latest/watermark.html)
+```watermark``` | ✅ | This filter adds a watermark to the image. It can be positioned inside the image with the alpha channel specified and optionally resized based on the image size by specifying the ratio (see [Resizing](https://thumbor.readthedocs.io/en/latest/watermark.html#resizing)). [Learn more.](https://thumbor.readthedocs.io/en/latest/watermark.html)
 
 ## ```<ThumborImage/>``` Props ```ImageProps```
  Propname             | Type                       | Description
@@ -200,7 +218,7 @@ mode? | "width" \| "resolution" | (optional) The mode attribute specifies the me
  horizontalAlignment? | "left" \| "center" \| "right"                 | (optional) The horizontalAlignment parameter is used to align an image horizontally. [Learn more.](https://thumbor.readthedocs.io/en/latest/usage.html#horizontal-align)           
  verticalAlignment? | "top" \| "middle" \| "bottom" | (optional) The verticalAlignment parameter is used to align an image vertically. [Learn more.](https://thumbor.readthedocs.io/en/latest/usage.html#vertical-align)
 smart? | boolean | (optional) The smart parameter is used to enable smart cropping. [Learn more.](https://thumbor.readthedocs.io/en/latest/usage.html#smart-cropping)
-filters? | AbstractThumborFilterProp[] | (optional) The filters parameter is used to apply filters to an image. (yes, it's really uncomfortable to use for a moment, probably will fix in next version, for now... Just deal with it, please) [Learn more.](https://thumbor.readthedocs.io/en/latest/usage.html#filters)
+filters? | AbstractThumborFilterProp[] | (optional) The filters parameter is used to apply filters to an image. [Learn more.](https://thumbor.readthedocs.io/en/latest/usage.html#filters)
 
 ## ```ThumborTrimProps``` Props
  Propname             | Type                                    | Description
@@ -224,63 +242,154 @@ y | number | (mandatory) The y parameter is used to specify the y coordinate of 
 topLeft | ThumborPointProps | (mandatory) The topLeft parameter is used to specify the top left point of the crop rectangle.
 bottomRight | ThumborPointProps | (mandatory) The bottomRight parameter is used to specify the bottom right point of the crop rectangle.
 
-## ```ABProp``` Props
- Propname             | Type              | Description
-----------------------|-------------------| -------------
-a? | number | (optional) The a parameter is used to specify the a value of the filter ```Round corners```. [Learn more.](https://thumbor.readthedocs.io/en/latest/round_corners.html)
-b? | number | (optional) The b parameter is used to specify the b value of the filter ```Round corners```. [Learn more.](https://thumbor.readthedocs.io/en/latest/round_corners.html)
-
-## ```HtmlColor``` Type
- Type              | Description
--------------------| -------------------
-'maroon' \| 'darkred' \| 'brown' \| 'firebrick' \| 'crimson' \| 'red' \| 'tomato' \| 'coral' \| 'indianred' \| 'lightcoral' \| 'darksalmon' \| 'salmon' \| 'lightsalmon' \| 'orangered' \| 'darkorange' \| 'orange' \| 'gold' \| 'darkgoldenrod' \| 'goldenrod' \| 'palegoldenrod' \| 'darkkhaki' \| 'khaki' \| 'olive' \| 'yellow' \| 'yellowgreen' \| 'darkolivegreen' \| 'olivedrab' \| 'lawngreen' \| 'chartreuse' \| 'greenyellow' \| 'darkgreen' \| 'green' \| 'forestgreen' \| 'lime' \| 'limegreen' \| 'lightgreen' \| 'palegreen' \| 'darkseagreen' \| 'mediumspringgreen' \| 'springgreen' \| 'seagreen' \| 'mediumaquamarine' \| 'mediumseagreen' \| 'lightseagreen' \| 'darkslategray' \| 'teal' \| 'darkcyan' \| 'aqua' \| 'cyan' \| 'lightcyan' \| 'darkturquoise' \| 'turquoise' \| 'mediumturquoise' \| 'paleturquoise' \| 'aquamarine' \| 'powderblue' \| 'cadetblue' \| 'steelblue' \| 'cornflowerblue' \| 'deepskyblue' \| 'dodgerblue' \| 'lightblue' \| 'skyblue' \| 'lightskyblue' \| 'midnightblue' \| 'navy' \| 'darkblue' \| 'mediumblue' \| 'blue' \| 'royalblue' \| 'blueviolet' \| 'indigo' \| 'darkslateblue' \| 'slateblue' \| 'mediumslateblue' \| 'mediumpurple' \| 'darkmagenta' \| 'darkviolet' \| 'darkorchid' \| 'mediumorchid' \| 'purple' \| 'thistle' \| 'plum' \| 'violet' \| 'fuchsia' \| 'orchid' \| 'mediumvioletred' \| 'palevioletred' \| 'deeppink' \| 'hotpink' \| 'lightpink' \| 'pink' \| 'antiquewhite' \| 'beige' \| 'bisque' \| 'blanchedalmond' \| 'wheat' \| 'cornsilk' \| 'lemonchiffon' \| 'lightgoldenrodyellow' \| 'lightyellow' \| 'saddlebrown' \| 'sienna' \| 'chocolate' \| 'peru' \| 'sandybrown' \| 'burlywood' \| 'tan' \| 'rosybrown' \| 'moccasin' \| 'navajowhite' \| 'peachpuff' \| 'mistyrose' \| 'lavenderblush' \| 'linen' \| 'oldlace' \| 'papayawhip' \| 'seashell' \| 'mintcream' \| 'slategray' \| 'lightslategray' \| 'lightsteelblue' \| 'lavender' \| 'floralwhite' \| 'aliceblue' \| 'ghostwhite' \| 'honeydew' \| 'ivory' \| 'azure' \| 'snow' \| 'black' \| 'dimgray' \| 'gray' \| 'darkgray' \| 'silver' \| 'lightgray' \| 'gainsboro' \| 'whitesmoke' \| 'white' | (mandatory) The HtmlColor type is used to specify a color. [Learn more.](https://learn.coderslang.com/0028-html-colors-with-names-hex-and-rgb-codes/)
-
-## ```Color``` Type
- Type              | Description
--------------------| -------------------
-string \| HtmlColor | (mandatory) The Color type is used to specify a color. HEX code or HTML color.
-
-## ```AutoColor``` Type
- Type              | Description
--------------------| -------------------
-Color \| 'auto' | (mandatory) The AutoColor type is used to specify a color. HEX code or HTML color or ```auto```.
-
-## ```BlurColor``` Type
- Type              | Description
--------------------| -------------------
-Color \| 'blur' | (mandatory) The BlurColor type is used to specify a color. HEX code or HTML color or ```blur```.
-
-## ```TransparentColor``` Type
- Type              | Description
--------------------| -------------------
-Color \| 'transparent' | (mandatory) The TransparentColor type is used to specify a color. HEX code or HTML color or ```transparent```.
-
-## ```AutoBlurColor``` Type
- Type              | Description
--------------------| -------------------
-AutoColor \| BlurColor | (mandatory) The AutoBlurColor type is used to specify a color. HEX code or HTML color or ```auto``` or ```blur```.
-
-## ```AutoBlurTransparentColor``` Type
- Type              | Description                   
--------------------|-------------------------------
-AutoBlurColor \| TransparentColor \| BlurColor | (mandatory) The AutoBlurTransparentColor type is used to specify a color. HEX code or HTML color or ```auto``` or ```blur``` or ```transparent```. 
-
-## ```AbstractThumborFilterArgumentProp``` Props
- Propname | Type                                                                                                                     | Description
-----------|--------------------------------------------------------------------------------------------------------------------------| -------------
- value    | URL \| 'webp' \| 'jpeg' \| 'gif' \| 'png' \| 'avif' \| boolean \| Color \| AutoColor \| BlurColor \| TransparentColor \| AutoBlurColor \| AutoBlurTransparentColor \| string \| number \| number[][] \| never \| 'none' \| ABProp \| 1 \| 0 \| 'True' \| 'False' | (mandatory) The value parameter is used to specify the value of the filter. [Learn more.](https://thumbor.readthedocs.io/en/latest/usage.html#filters)
-
 ## ```AbstractThumborFilterProp``` Props
- Propname             | Type              | Description
-----------------------|-------------------| -------------
-name | 'contrast' \| 'convolution' \| 'cover' \| 'equalize' \| 'fill' \| 'focal' \| 'format' \| 'grayscale' \| 'max_bytes' \| 'noise' \| 'no_upscale' \| 'proportion' \| 'quality' \| 'rgb' \| 'rotate' \| 'round_corner' \| 'saturation' \| 'sharpen' \| 'stretch' \| 'strip_exif' \| 'strip_icc' \| 'upscale' \| 'watermark' | (mandatory) The name parameter is used to specify the name of the filter. [Learn more.](https://thumbor.readthedocs.io/en/latest/usage.html#filters)
-args | AbstractThumborFilterArgumentProp[] | (mandatory) The args parameter is used to specify the arguments of the filter. [Learn more.](https://thumbor.readthedocs.io/en/latest/usage.html#filters)
+ Propname             | Type                                                                                                                                                                                                                                                                                                                                      | Description                                                                                                                                          
+----------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------
+name | 'contrast' \| 'convolution' \| 'cover' \| 'equalize' \| 'extract_focal' \| 'fill' \| 'focal' \| 'format' \| 'grayscale' \| 'max_bytes' \| 'noise' \| 'no_upscale' \| 'proportion' \| 'quality' \| 'rgb' \| 'rotate' \| 'round_corner' \| 'saturation' \| 'sharpen' \| 'stretch' \| 'strip_exif' \| 'strip_icc' \| 'upscale' \| 'watermark' | (mandatory) The name parameter is used to specify the name of the filter. [Learn more.](https://thumbor.readthedocs.io/en/latest/usage.html#filters) 
+...  | dynamic | (mandatory) Depending on the selected filter, you will need to specify a different number of parameters with different property names                | (mandatory) The args parameter is used to specify the arguments of the filter. [Learn more.](https://thumbor.readthedocs.io/en/latest/usage.html#filters)
 
-## ```Thumbor Utilities``` Exported Functions
- Function name | Function arguments                             | Function return type          | Description
-----------------------|------------------------------------------------|-------------------------------| -------------
-buildUrl | imageSrc: string, thumborProps: ThumborProps | URL                           | (mandatory) The buildUrl function is used to build a Thumbor URL. [Learn more.](https://thumbor.readthedocs.io/en/latest/usage.html) 
-buildBackgrounImageCssString | imageSrc: string, thumborProps: ThumborProps | string - url('<thumbor_url>') | The buildBackgrounImageCssString function is used to build a CSS string for background-image property. [Learn more.](https://thumbor.readthedocs.io/en/latest/usage.html)
+## All Filters Object Example
+```typescript
+filters: [
+    {
+        name: 'autojpg'
+    },
+    {
+        name:'background_color',
+        color: '#2bb9a4'
+    },
+    {
+        name: 'blur',
+        radius: 10,
+        sigma: 3 //optional
+    },
+    {
+        name: 'brightness',
+        amount: 50
+    },
+    {
+        name: 'contrast',
+        amount: 50
+    },
+    {
+        name:'convolution',
+        matrix: [[-1, -1, -1], [-1, 8, -1], [-1, -1, -1]],
+        columns: 3,
+        normalize: false
+    },
+    {
+        name: 'cover'
+    },
+    {
+        name: 'equalize'
+    },
+    {
+        name: 'extract_focal',
+        pre: {
+            topLeft: {
+                x: 100,
+                y: 150
+            },
+            bottomRight: {
+                x: 300,
+                y: 200
+            }
+        }
+    },
+    {
+        name: 'fill',
+        color: '#2bb9a4',
+        fillTransparent: true //optional
+    },
+    {
+        name: 'focal',
+        left: 1,
+        top: 1,
+        right: 1,
+        bottom: 1
+    },
+    {
+        name: 'format',
+        format: 'webp'
+    },
+    {
+        name: 'grayscale'
+    },
+    {
+        name: 'max_bytes',
+        bytes: 1500//<1.5kb
+    },
+    {
+        name: 'no_upscale'
+    },
+    {
+        name: 'noise',
+        amount: 50
+    },
+    {
+        name: 'proportion',
+        percentage: 100
+    },
+    {
+        name: 'quality',
+        amount: 100
+    },
+    {
+        name: 'rgb',
+        red: 76,
+        green: 5,
+        blue: 10
+    },
+    {
+        name: 'rotate',
+        amount: 90
+    },
+    {
+        name: "round_corner",
+        a: 25,
+        b: 2, //optional
+        red: 255,
+        green: 255,
+        blue: 255,
+        transparent: true //optional
+    },
+    {
+        name: 'saturation',
+        amount: 15
+    },
+    {
+        name: "sharpen",
+        amount: 2,
+        radius: 1.0,
+        luminance: true
+    },
+    {
+        name: 'stretch'
+    },
+    {
+        name: 'strip_exif'
+    },
+    {
+        name: 'strip_icc'
+    },
+    {
+        name: 'upscale'
+    },
+    {
+        name: 'watermark',
+        url: 'https://easydigitaldownloads.com/wp-content/uploads/2014/02/edd-download-image-watermark.png',
+        xPosition: {
+            type: 'repeat',
+        },
+        yPosition: {
+            type: 'repeat',
+        },
+        alpha: 85,
+        wRatio: 15, //optional
+        hRatio: 15 //optional
+    }
+  ]
+```
 
 ## Goals
 

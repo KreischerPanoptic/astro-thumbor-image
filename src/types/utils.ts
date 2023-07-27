@@ -31,7 +31,3 @@ export function srcSetToString(srcSet: SetProps) : string {
 
     return result;
 }
-
-export function urlToBackgroundImageCssString(url: string): string {
-    return `url(${url})`;
-}

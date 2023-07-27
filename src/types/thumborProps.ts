@@ -16,26 +16,10 @@ export interface ThumborPointProps {
     y: number;
 }
 
-export interface ThumborSquareProps {
-    left: number;
-    top: number;
-    right: number;
-    bottom: number;
-}
-
 export interface ThumborCropProps {
     topLeft: ThumborPointProps;
     bottomRight: ThumborPointProps;
 }
-
-export interface ThumborRoundingProps {
-    a?: number;
-    b?: number;
-    rgb: number[];
-    transparent?: 0 | 1;
-}
-
-
 
 export interface ThumborProps {
     url: URL;
@@ -55,139 +39,82 @@ export interface ThumborProps {
 function isHtmlColor(color: string): color is HtmlColor {
     return ['maroon', 'darkred', 'brown', 'firebrick', 'crimson', 'red', 'tomato', 'coral', 'indianred', 'lightcoral', 'darksalmon', 'salmon', 'lightsalmon', 'orangered', 'darkorange', 'orange', 'gold', 'darkgoldenrod', 'goldenrod', 'palegoldenrod', 'darkkhaki', 'khaki', 'olive', 'yellow', 'yellowgreen', 'darkolivegreen', 'olivedrab', 'lawngreen', 'chartreuse', 'greenyellow', 'darkgreen', 'green', 'forestgreen', 'lime', 'limegreen', 'lightgreen', 'palegreen', 'darkseagreen', 'mediumspringgreen', 'springgreen', 'seagreen', 'mediumaquamarine', 'mediumseagreen', 'lightseagreen', 'darkslategray', 'teal', 'darkcyan', 'aqua', 'cyan', 'lightcyan', 'darkturquoise', 'turquoise', 'mediumturquoise', 'paleturquoise', 'aquamarine', 'powderblue', 'cadetblue', 'steelblue', 'cornflowerblue', 'deepskyblue', 'dodgerblue', 'lightblue', 'skyblue', 'lightskyblue', 'midnightblue', 'navy', 'darkblue', 'mediumblue', 'blue', 'royalblue', 'blueviolet', 'indigo', 'darkslateblue', 'slateblue', 'mediumslateblue', 'mediumpurple', 'darkmagenta', 'darkviolet', 'darkorchid', 'mediumorchid', 'purple', 'thistle', 'plum', 'violet', 'fuchsia', 'orchid', 'mediumvioletred', 'palevioletred', 'deeppink', 'hotpink', 'lightpink', 'pink', 'antiquewhite', 'beige', 'bisque', 'blanchedalmond', 'wheat', 'cornsilk', 'lemonchiffon', 'lightgoldenrodyellow', 'lightyellow', 'saddlebrown', 'sienna', 'chocolate', 'peru', 'sandybrown', 'burlywood', 'tan', 'rosybrown', 'moccasin', 'navajowhite', 'peachpuff', 'mistyrose', 'lavenderblush', 'linen', 'oldlace', 'papayawhip', 'seashell', 'mintcream', 'slategray', 'lightslategray', 'lightsteelblue', 'lavender', 'floralwhite', 'aliceblue', 'ghostwhite', 'honeydew', 'ivory', 'azure', 'snow', 'black', 'dimgray', 'gray', 'darkgray', 'silver', 'lightgray', 'gainsboro', 'whitesmoke', 'white'].indexOf(color) !== -1;
 }
+const isHexColourCode = (s: string) => !!s.match(/^#[a-f0-9]{3}([a-f0-9]{3})?$/i)
+
+function isEncoded(str: string) {
+    return typeof str == "string" && decodeURIComponent(str) !== str;
+}
+
+type FilterPreprocessorResult = {
+    filterString: string,
+    extractionProps?: ThumborCropProps
+};
+
 //BLUR NOT WORKING ??
-function buildFilterString(filter: AbstractThumborFilterProp): string {
+function buildFilterString(filter: AbstractThumborFilterProp): FilterPreprocessorResult {
     let filterString = '';
+    let extractionProps: ThumborCropProps | null = null;
     switch (filter.name) {
         case 'autojpg':
-            filterString += filter.name;
-            if(filter.args && filter.args.length === 1) {
-                if(filter.args[0].value === 'True' || filter.args[0].value === 'False') {
-                    filterString += `(${filter.args[0].value})`;
-                }
-                else {
-                    filterString += '()';
-                }
-            }
-            else {
-                filterString += '()';
-            }
+            filterString += filter.name+'()';
             break;
         case 'background_color':
-            filterString += filter.name;
-            if(filter.args && filter.args.length === 1) {
-                if(typeof filter.args[0].value === 'string') {
-                    const isHexColourCode = (s: string) => !!s.match(/^#[a-f0-9]{3}([a-f0-9]{3})?$/i)
-                    if(isHexColourCode(filter.args[0].value)) {
-                        filterString += `(${filter.args[0].value.substring(1)})`;
-                    }
-                    else if (filter.args[0].value === 'auto') {
-                        filterString += `(${filter.args[0].value})`;
-                    }
-                    else if(isHtmlColor(filter.args[0].value)) {
-                        filterString += `(${filter.args[0].value})`;
-                    }
-                    else {
-                        filterString = '';
-                    }
-                }
-                else {
-                    filterString = '';
-                }
+            if(!isHexColourCode(filter.color) && filter.color !== 'auto' && !isHtmlColor(filter.color)) {
+                filter.color = 'auto';
             }
-            else {
-                filterString = '';
+            else if(isHexColourCode(filter.color)) {
+                filter.color = filter.color.replace('#', '');
             }
+            filterString += filter.name+'('+filter.color+')';
             break;
         case 'blur':
-            filterString += filter.name;
-            if(filter.args && filter.args.length > 0 && filter.args.length < 3) {
-                    if(typeof filter.args[0].value === 'number') {
-                        if(filter.args[0].value >= 0 && filter.args[0].value <= 150) {
-                            filterString += `(${filter.args[0].value}`;
-                            if (filter.args.length === 2) {
-                                if (typeof filter.args[1].value === 'number') {
-                                    if(filter.args[1].value >= 0 && filter.args[1].value <= 150) {
-                                        filterString += `,${filter.args[1].value}`;
-                                    }
-                                }
-                            }
-                            filterString += ')';
-                        }
-                        else {
-                            filterString = '';
-                        }
-                    }
-                    else {
-                        filterString = '';
-                    }
-                }
-            else {
-                filterString = '';
+            if(filter.radius < 0) {
+                filter.radius = 0;
             }
+            else if(filter.radius > 150) {
+                filter.radius = 150;
+            }
+
+            if(filter.sigma < 0) {
+                filter.sigma = 0;
+            }
+            else if(filter.sigma > 150) {
+                filter.sigma = 150;
+            }
+
+            filterString += filter.name + '('+filter.radius+(filter.sigma ? ','+filter.sigma : '')+')';
             break;
         case 'brightness':
             filterString += filter.name;
-            if(filter.args && filter.args.length === 1) {
-                if(typeof filter.args[0].value === 'number') {
-                    if(filter.args[0].value >= -100 && filter.args[0].value <= 100) {
-                        filterString += `(${filter.args[0].value})`;
-                    }
-                    else {
-                        filterString = '';
-                    }
-                }
-                else {
-                    filterString = '';
-                }
+            if(filter.amount < -100) {
+                filter.amount = -100;
             }
-            else {
-                filterString = '';
+            else if(filter.amount > 100) {
+                filter.amount = 100;
             }
+            filterString += '('+filter.amount+')';
             break;
         case 'contrast':
             filterString += filter.name;
-            if(filter.args && filter.args.length === 1) {
-                if(typeof filter.args[0].value === 'number') {
-                    if(filter.args[0].value >= -100 && filter.args[0].value <= 100) {
-                        filterString += `(${filter.args[0].value})`;
-                    }
-                    else {
-                        filterString = '';
-                    }
-                }
-                else {
-                    filterString = '';
-                }
+            if(filter.amount < -100) {
+                filter.amount = -100;
             }
-            else {
-                filterString = '';
+            else if(filter.amount > 100) {
+                filter.amount = 100;
             }
+            filterString += '('+filter.amount+')';
             break;
 
         case 'convolution':
-            filterString += filter.name;
-            if(filter.args && filter.args.length === 3) {
-                filterString+='(';
-                try {
-                    (filter.args[0].value as number[][]).forEach((array, index) => {
-                        array.forEach((value, index2) => {
-                            filterString += value + ';';
-                        });
-                    });
-                    filterString = filterString.slice(0, -1);
-                    filterString += ','+filter.args[1].value;
-                    filterString += ','+(filter.args[2].value as boolean ? 'true' : 'false')+')';
-
-                    //console.log('convolution filter: ', filterString);
-                }
-                catch {
-                    filterString = '';
-                }
-            }
-            else {
-                filterString = '';
-            }
+            filterString += filter.name+='(';
+            filter.matrix.forEach((array) => {
+                array.forEach((value) => {
+                    filterString += value + ';';
+                });
+            });
+            filterString = filterString.slice(0, -1);
+            filterString += ','+filter.columns;
+            filterString += ','+(filter.normalize ? 'true' : 'false')+')';
             break;
 
         case 'cover':
@@ -198,144 +125,27 @@ function buildFilterString(filter: AbstractThumborFilterProp): string {
             filterString += filter.name+"()";
             break;
 
-        /*case 'extract_focal':
-            filterString += filter.name;
-            //TODO: Implement
+        case 'extract_focal':
+            filterString += filter.name+'()';
+            extractionProps = filter.pre;
             break;
-        */
+
         case 'fill':
-            filterString += filter.name;
-            if(filter.args && filter.args.length > 0 && filter.args.length < 3) {
-                if(typeof filter.args[0].value === 'string') {
-                    const isHexColourCode = (s: string) => !!s.match(/^#[a-f0-9]{3}([a-f0-9]{3})?$/i)
-                    if(isHexColourCode(filter.args[0].value)) {
-                        filterString += `(${filter.args[0].value.substring(1)}`;
-                        if (filter.args.length === 2) {
-                            if (typeof filter.args[1].value === 'number') {
-                                if(filter.args[1].value === 0 || filter.args[1].value === 1) {
-                                    filterString += `,${filter.args[1].value}`;
-                                }
-                            }
-                            else if (typeof filter.args[1].value === 'boolean') {
-                                filterString += `,${filter.args[1].value?'true':'false'}`;
-                            }
-                        }
-                        filterString += ')';
-                    }
-                    else if (filter.args[0].value === 'auto') {
-                        filterString += `(${filter.args[0].value}`;
-                        if (filter.args.length === 2) {
-                            if (typeof filter.args[1].value === 'number') {
-                                if(filter.args[1].value === 0 || filter.args[1].value === 1) {
-                                    filterString += `,${filter.args[1].value}`;
-                                }
-                            }
-                            else if (typeof filter.args[1].value === 'boolean') {
-                                filterString += `,${filter.args[1].value?'true':'false'}`;
-                            }
-                        }
-                        filterString += ')';
-                    }
-                    else if (filter.args[0].value === 'blur') {
-                        filterString += `(${filter.args[0].value}`;
-                        if (filter.args.length === 2) {
-                            if (typeof filter.args[1].value === 'number') {
-                                if(filter.args[1].value === 0 || filter.args[1].value === 1) {
-                                    filterString += `,${filter.args[1].value}`;
-                                }
-                            }
-                            else if (typeof filter.args[1].value === 'boolean') {
-                                filterString += `,${filter.args[1].value?'true':'false'}`;
-                            }
-                        }
-                        filterString += ')';
-                    }
-                    else if (filter.args[0].value === 'transparent') {
-                        filterString += `(${filter.args[0].value}`;
-                        if (filter.args.length === 2) {
-                            if (typeof filter.args[1].value === 'number') {
-                                if(filter.args[1].value === 0 || filter.args[1].value === 1) {
-                                    filterString += `,${filter.args[1].value}`;
-                                }
-                            }
-                            else if (typeof filter.args[1].value === 'boolean') {
-                                filterString += `,${filter.args[1].value?'true':'false'}`;
-                            }
-                        }
-                        filterString += ')';
-                    }
-                    else if(isHtmlColor(filter.args[0].value)) {
-                        filterString += `(${filter.args[0].value}`;
-                        if (filter.args.length === 2) {
-                            if (typeof filter.args[1].value === 'number') {
-                                if(filter.args[1].value === 0 || filter.args[1].value === 1) {
-                                    filterString += `,${filter.args[1].value}`;
-                                }
-                            }
-                            else if (typeof filter.args[1].value === 'boolean') {
-                                filterString += `,${filter.args[1].value?'true':'false'}`;
-                            }
-                        }
-                        filterString += ')';
-                    }
-                    else {
-                        filterString = '';
-                    }
-                }
-                else {
-                    filterString = '';
-                }
+            if(!isHexColourCode(filter.color) && filter.color !== 'auto' && !isHtmlColor(filter.color) && filter.color !== 'blur' && filter.color !== 'transparent') {
+                filter.color = 'auto';
             }
-            else {
-                filterString = '';
+            else if(isHexColourCode(filter.color)) {
+                filter.color = filter.color.replace('#', '');
             }
+            filterString += filter.name+'('+filter.color+(filter.fillTransparent ? ',true' : '')+')';
             break;
 
         case 'focal':
-            filterString += filter.name+'(';
-            if(filter.args && filter.args.length === 4) {
-                for(let arg of filter.args) {
-                    if(typeof arg.value !== 'number') {
-                        filterString = '';
-                        break;
-                    }
-                }
-                if(filterString !== '') {
-                    filterString += `${filter.args[0].value}x${filter.args[1].value}:${filter.args[2].value}x${filter.args[3].value})`;
-                }
-            }
-            else {
-                filterString = '';
-            }
+            filterString += filter.name+`(${filter.left}x${filter.top}:${filter.right}x${filter.bottom})`;
             break;
 
         case 'format':
-            filterString += filter.name;
-            if(filter.args && filter.args.length === 1) {
-                switch (filter.args[0].value) {
-                    case 'jpeg':
-                        filterString += `(${filter.args[0].value})`;
-                        break;
-                    case 'png':
-                        filterString += `(${filter.args[0].value})`;
-                        break;
-                    case 'webp':
-                        filterString += `(${filter.args[0].value})`;
-                        break;
-                    case 'gif':
-                        filterString += `(${filter.args[0].value})`;
-                        break;
-                    case 'avif':
-                        filterString += `(${filter.args[0].value})`;
-                        break;
-                    default:
-                        filterString = '';
-                        break;
-                }
-            }
-            else {
-                filterString = '';
-            }
+            filterString += filter.name + `(${filter.format})`;
             break;
 
         case "grayscale":
@@ -343,23 +153,7 @@ function buildFilterString(filter: AbstractThumborFilterProp): string {
             break;
 
         case 'max_bytes':
-            filterString += filter.name;
-            if(filter.args && filter.args.length === 1) {
-                if(typeof filter.args[0].value === 'number') {
-                    if(filter.args[0].value >= 1) {
-                        filterString += `(${filter.args[0].value})`;
-                    }
-                    else {
-                        filterString = '';
-                    }
-                }
-                else {
-                    filterString = '';
-                }
-            }
-            else {
-                filterString = '';
-            }
+            filterString += filter.name+'('+filter.bytes+')';
             break;
 
         case "no_upscale":
@@ -367,153 +161,110 @@ function buildFilterString(filter: AbstractThumborFilterProp): string {
             break;
 
         case "noise":
-            filterString += filter.name;
-            if(filter.args && filter.args.length === 1) {
-                if(typeof filter.args[0].value === 'number') {
-                    if(filter.args[0].value >= 0 && filter.args[0].value <= 100) {
-                        filterString += `(${filter.args[0].value})`;
-                    }
-                    else {
-                        filterString = '';
-                    }
-                }
-                else {
-                    filterString = '';
-                }
+            if(filter.amount < 0) {
+                filter.amount = 0;
             }
-            else {
-                filterString = '';
+            else if(filter.amount > 100) {
+                filter.amount = 100;
             }
+            filterString += filter.name+`(${filter.amount})`;
             break;
 
         case "proportion":
-            filterString += filter.name;
-            if(filter.args && filter.args.length === 1) {
-                if(typeof filter.args[0].value === 'number') {
-                    if(filter.args[0].value >= 0.0 && filter.args[0].value <= 1.0) {
-                        filterString += `(${filter.args[0].value})`;
-                    }
-                    else {
-                        filterString = '';
-                    }
-                }
-                else {
-                    filterString = '';
-                }
+            if(filter.percentage < 0.0) {
+                filter.percentage = 0.0;
             }
-            else {
-                filterString = '';
+            else if(filter.percentage > 1.0) {
+                filter.percentage = 1.0;
             }
+            filterString += filter.name+`(${filter.percentage})`;
             break;
 
         case "quality":
-            filterString += filter.name;
-            if(filter.args && filter.args.length === 1) {
-                if(typeof filter.args[0].value === 'number') {
-                    if(filter.args[0].value >= 0 && filter.args[0].value <= 100) {
-                        filterString += `(${filter.args[0].value})`;
-                    }
-                    else {
-                        filterString = '';
-                    }
-                }
-                else {
-                    filterString = '';
-                }
+            if(filter.amount < 0) {
+                filter.amount = 0;
             }
-            else {
-                filterString = '';
+            else if(filter.amount > 100) {
+                filter.amount = 100;
             }
+
+            filterString += filter.name+`(${filter.amount})`;
             break;
 
         case "rgb":
-            filterString += filter.name+'(';
-            if(filter.args && filter.args.length === 3) {
-                if(typeof filter.args[0].value === 'number') {
-                    if(filter.args[0].value >= -100 && filter.args[0].value <= 100) {
-                        filterString += `${filter.args[0].value}`;
-                        if(typeof filter.args[1].value === 'number') {
-                            if (filter.args[1].value >= -100 && filter.args[1].value <= 100) {
-                                filterString += `,${filter.args[1].value}`;
-                                if(typeof filter.args[2].value === 'number') {
-                                    if (filter.args[2].value >= -100 && filter.args[2].value <= 100) {
-                                        filterString += `,${filter.args[2].value})`;
-                                    } else {
-                                        filterString = '';
-                                    }
-                                }
-                                else {
-                                    filterString = '';
-                                }
-                            } else {
-                                filterString = '';
-                            }
-                        }
-                        else {
-                            filterString = '';
-                        }
-                    }
-                    else {
-                        filterString = '';
-                    }
-                }
-                else {
-                    filterString = '';
-                }
+            if(filter.red < -100) {
+                filter.red = -100;
             }
-            else {
-                filterString = '';
+            else if(filter.red > 100) {
+                filter.red = 100;
             }
+
+            if(filter.green < -100) {
+                filter.green = -100;
+            }
+            else if(filter.green > 100) {
+                filter.green = 100;
+            }
+
+            if(filter.blue < -100) {
+                filter.blue = -100;
+            }
+            else if(filter.blue > 100) {
+                filter.blue = 100;
+            }
+
+            filterString += filter.name+`(${filter.red},${filter.green},${filter.blue})`;
             break;
 
         case "rotate":
-            filterString += filter.name;
-            if(filter.args && filter.args.length === 1) {
-                if(typeof filter.args[0].value === 'number') {
-                    if(filter.args[0].value >= 0 && filter.args[0].value <= 359) {
-                        filterString += `(${filter.args[0].value})`;
-                    }
-                    else {
-                        filterString = '';
-                    }
-                }
-                else {
-                    filterString = '';
-                }
+            if(filter.angle < 0) {
+                filter.angle = 0;
             }
-            else {
-                filterString = '';
+            else if(filter.angle > 359) {
+                filter.angle = 359;
             }
+            filterString += filter.name+`(${filter.angle})`;
             break;
 
         case "round_corner":
-            filterString += filter.name;
-            //TODO: Implement
+            if(filter.red < 0) {
+                filter.red = 0;
+            }
+            else if(filter.red > 255) {
+                filter.red = 255;
+            }
+
+            if(filter.green < 0) {
+                filter.green = 0;
+            }
+            else if(filter.green > 255) {
+                filter.green = 255;
+            }
+
+            if(filter.blue < 0) {
+                filter.blue = 0;
+            }
+            else if(filter.blue > 255) {
+                filter.blue = 255;
+            }
+
+            filterString += filter.name+`(${filter.a}`;
+            if(filter.b) {
+                filterString += `|${filter.b}`;
+            }
+            filterString += `,${filter.red},${filter.green},${filter.blue}`;
+            if(filter.transparent) {
+                filterString += `,true`;
+            }
+            filterString += `)`;
             break;
 
         case "saturation":
-            filterString += filter.name;
-            if(filter.args && filter.args.length === 1) {
-                if(typeof filter.args[0].value === 'number') {
-                    if(filter.args[0].value >= -100 && filter.args[0].value <= 100) {
-                        filterString += `(${filter.args[0].value})`;
-                    }
-                    else {
-                        filterString = '';
-                    }
-                }
-                else {
-                    filterString = '';
-                }
-            }
-            else {
-                filterString = '';
-            }
+            filterString += filter.name+`(${filter.amount})`;
             break;
 
         case "sharpen":
-            filterString += filter.name;
-            //TODO: Implement
+            filterString += filter.name+`(${filter.amount},${filter.radius},${filter.luminance? 'true': 'false'})`;
             break;
 
         case "stretch":
@@ -533,24 +284,76 @@ function buildFilterString(filter: AbstractThumborFilterProp): string {
             break;
 
         case "watermark":
-            filterString += filter.name;
-            //TODO: Implement
+            if(!isEncoded(filter.url)) {
+                filter.url = encodeURIComponent(filter.url);
+            }
+            filterString += filter.name+`(${filter.url},`;
+            switch (filter.xPosition.type) {
+                case 'number':
+                    filterString += `${filter.xPosition.value},`;
+                    break;
+                case 'percentage':
+                    filterString += `${filter.xPosition.value}p,`;
+                    break;
+                case 'center':
+                    filterString += `center,`;
+                    break;
+                case 'repeat':
+                    filterString += `repeat,`;
+                    break;
+            }
+            switch (filter.yPosition.type) {
+                case 'number':
+                    filterString += `${filter.yPosition.value},`;
+                    break;
+                case 'percentage':
+                    filterString += `${filter.yPosition.value}p,`;
+                    break;
+                case 'center':
+                    filterString += `center,`;
+                    break;
+                case 'repeat':
+                    filterString += `repeat,`;
+                    break;
+            }
+            if(filter.alpha < 0) {
+                filter.alpha = 0;
+            }
+            else if(filter.alpha > 100) {
+                filter.alpha = 100;
+            }
+            filterString += `${filter.alpha}${filter.wRatio? ','+filter.wRatio : ''}${filter.hRatio ? ','+filter.hRatio : ''})`;
             break;
     }
-    return filterString;
+    return extractionProps ? {
+        filterString,
+        extractionProps
+    } : {
+        filterString
+    };
 }
 
-function buildFiltersString(filters: AbstractThumborFilterProp[]) : string {
+function buildFiltersString(filters: AbstractThumborFilterProp[]) : FilterPreprocessorResult {
     let filtersString = '/filters:';
+    let extractionProps: ThumborCropProps | null = null;
     if(filters && filters.length > 0) {
         filters.forEach((filter, index) => {
-            filtersString += buildFilterString(filter);
+            let result = buildFilterString(filter);
+            filtersString += result.filterString;
+            if(filter.name === 'extract_focal' && result.extractionProps) {
+                extractionProps = result.extractionProps;
+            }
             if(index < filters.length - 1) {
                 filtersString += ':';
             }
         });
     }
-    return filtersString;
+    return extractionProps ? {
+        filterString: filtersString,
+        extractionProps
+    } : {
+        filterString: filtersString
+    };
 }
 
 export function buildUrl(imageSrc: string, thumborProps: ThumborProps): URL {
@@ -568,7 +371,7 @@ export function buildUrl(imageSrc: string, thumborProps: ThumborProps): URL {
     }
 
     if(thumborProps.crop) {
-        mainUrlPart += `/crop:${thumborProps.crop.topLeft.x}x${thumborProps.crop.topLeft.y}:${thumborProps.crop.bottomRight.x}x${thumborProps.crop.bottomRight.y}`;
+        mainUrlPart += `/${thumborProps.crop.topLeft.x}x${thumborProps.crop.topLeft.y}:${thumborProps.crop.bottomRight.x}x${thumborProps.crop.bottomRight.y}`;
     }
 
     if(thumborProps.fit) {
@@ -642,9 +445,44 @@ export function buildUrl(imageSrc: string, thumborProps: ThumborProps): URL {
     }
 
     if(thumborProps.filters && thumborProps.filters.length > 0) {
-        mainUrlPart += buildFiltersString(thumborProps.filters);
+        let sortedFilters = [
+            ...thumborProps.filters.filter(({name}) => name !== 'extract_focal'),
+            ...thumborProps.filters.filter(({name}) => name === 'extract_focal')
+        ];
+        console.log('sortedFilters: ', sortedFilters)
+        let result = buildFiltersString(sortedFilters);
+        console.log('result: ', result)
+        mainUrlPart += result.filterString;;
+        console.log('mainUrlPart after filters: ', mainUrlPart)
+        if(result.extractionProps) {
+            let cropPart = `${url.replace(/(^\w+:|^)\/\//, '')}`;
+            let cropMainPart = `/${result.extractionProps.topLeft.x}x${result.extractionProps.topLeft.y}:${result.extractionProps.bottomRight.x}x${result.extractionProps.bottomRight.y}`;
+            cropMainPart += '/' + encodeURL(srcToUrl(imageSrc));
+            console.log('cropMainPart: ', cropMainPart)
+            console.log('cropPart: ', cropPart)
+            if(thumborProps.key && thumborProps.key.length > 0) {
+                //console.log('to sign: ', mainUrlPart.substring(1, mainUrlPart.length));
+                let key = HmacSHA1(cropMainPart.substring(1, cropMainPart.length), thumborProps.key);
+                key = Base64.stringify(key);
+
+                key = key.replace(/\+/g, '-').replace(/\//g, '_');
+
+                cropPart+=`/${key}${cropMainPart}`;
+            }
+            else {
+                cropPart+=`/unsafe${cropMainPart}`;
+            }
+            mainUrlPart += `/`+encodeURIComponent(cropPart);
+            console.log('mainUrlPart after extraction focal crop: ', mainUrlPart)
+        }
+        else {
+            mainUrlPart += `/${encodeURL(srcToUrl(imageSrc))}`;
+        }
+        console.log('mainUrlPart after adding source: ', mainUrlPart)
     }
-    mainUrlPart += `/${encodeURL(srcToUrl(imageSrc))}`;
+    else {
+        mainUrlPart += `/${encodeURL(srcToUrl(imageSrc))}`;
+    }
 
     if(thumborProps.key && thumborProps.key.length > 0) {
         //console.log('to sign: ', mainUrlPart.substring(1, mainUrlPart.length));
@@ -658,11 +496,6 @@ export function buildUrl(imageSrc: string, thumborProps: ThumborProps): URL {
     else {
         url+=`/unsafe${mainUrlPart}`;
     }
-    //console.log('url: ', url);
+    console.log('url: ', url);
     return new URL(url);
-}
-
-export function buildBackgrounImageCssString(imageSrc: string, thumborProps: ThumborProps): string {
-    let url = buildUrl(imageSrc, thumborProps);
-    return `url('${url}')`;
 }

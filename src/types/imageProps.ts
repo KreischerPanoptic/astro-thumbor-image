@@ -5,8 +5,8 @@ export interface ImageProps {
     thumbor?: ThumborProps;
     alt: string;
     src: string;
-    height?: string;
-    width?: string;
+    height?: number;
+    width?: number;
     decoding?: "sync" | "async" | "auto";
     loading?: "lazy" | "eager";
     srcset?: SetProps;
