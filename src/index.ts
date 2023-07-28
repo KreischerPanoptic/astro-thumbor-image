@@ -15,3 +15,4 @@ export * from "./components/ThumborPicture.astro";
 export * from "./components/ThumborFallbackImage.astro";
 // @ts-expect-error
 export * from "./components/ThumborOptimizedImage.astro";
+export * from "./types";
